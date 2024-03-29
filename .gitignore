@@ -7,6 +7,7 @@
 coverage
 node_modules
 build/
+dist/
 *~
 
 #IDE ignores
