@@ -1,19 +1,17 @@
 import type { RowDataPacket } from 'mysql2';
-import { SelectQuery } from './queryUtils';
+import { SelectQuery, ModifyQuery } from './queryUtils';
 
 export interface IPokemonRow extends RowDataPacket {
     id: number
-    pokemon_name: string
+    id_user: number
+    name: string
     nickname: string
-    created_at: Date
-    updated_at: Date
-    deleted_at: Date | null
 }
 
-export function getAll() {
-    return SelectQuery<IPokemonRow>('SELECT * FROM my_pokemon_lists;');
+export async function getByUserId(id: number) {
+    return SelectQuery<IPokemonRow>('SELECT * FROM my_pokemon_list WHERE id_user = ?', [id]);
 }
 
-export async function getOne(id: number) {
-    return SelectQuery<IPokemonRow>('SELECT * FROM my_pokemon_lists WHERE id = ?', [id]);
+export async function insertPokemon(data: IPokemonRow) {
+    return ModifyQuery<IPokemonRow>('INSERT INTO my_pokemon_list (id_user, name, nickname) VALUES (?, ?, ?)', [data.id_user, data.name, data.nickname]);
 }

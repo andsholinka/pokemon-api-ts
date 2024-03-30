@@ -1,29 +1,23 @@
 import { Request, Response } from "express";
 import db from "../db";
+import { getPokeAPI } from "../services/pokeapiService";
+import GeneralHelper from "../helpers/GeneralHelper";
 
-export async function getOnePokemon(req: Request, res: Response) {
+export async function getPokemonsFromPokeAPI(req: Request, res: Response) {
     try {
-        const id = Number(req.params.id);
+        const pokemons = await getPokeAPI();
 
-        const [pokemon] = await db.pokemons.getOne(id);
-        return res.status(200).send({
-            status: 200,
-            message: "Success",
-            data: pokemon
-        });
+        return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, pokemons));
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
 
-export async function getAllPokemons(req: Request, res: Response) {
+export async function getPokemonsByUserId(req: Request, res: Response) {
     try {
-        const pokemons = await db.pokemons.getAll();
-        return res.status(200).send({
-            status: 200,
-            message: "Success",
-            data: pokemons
-        });
+        const pokemon = await db.pokemons.getByUserId(res.locals.userId);
+
+        return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, pokemon));
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
