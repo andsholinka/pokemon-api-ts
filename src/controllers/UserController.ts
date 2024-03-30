@@ -2,14 +2,14 @@ import { Request, Response } from "express";
 import path from 'path'
 import fs from "fs";
 
-import db from "../db";
+import Users from "../db/users";
 import cloudinary from "../helpers/cloudinary";
-import GeneralHelper from "../helpers/GeneralHelper";
-import { registerValidation, loginValidation } from "../helpers/validationHelper";
+import GeneralHelper from "../helpers/generalHelper";
+import ValidationHelper from "../helpers/validationHelper";
 
-export async function register(req: Request, res: Response) {
+const register = async (req: Request, res: Response) => {
     try {
-        const { error } = registerValidation(req.body);
+        const { error } = ValidationHelper.registerValidation(req.body);
 
         if (error) {
             return res.status(400).send(GeneralHelper.ResponseData(400, "Bad Request", error.details[0].message, null));
@@ -17,7 +17,7 @@ export async function register(req: Request, res: Response) {
 
         const user = req.body;
 
-        const [duplicateUser] = await db.users.getByEmail(user);
+        const [duplicateUser] = await Users.getByEmail(user);
 
         if (duplicateUser) {
             return res.status(400).send(GeneralHelper.ResponseData(400, "Bad Request", 'Email already exists', null));
@@ -26,7 +26,7 @@ export async function register(req: Request, res: Response) {
         const hashed = await GeneralHelper.PasswordHash(user.password);
         user.password = hashed;
 
-        await db.users.register(user);
+        await Users.register(user);
 
         return res.status(201).send(GeneralHelper.ResponseData(201, "OK", null, user));
     } catch (error) {
@@ -34,16 +34,16 @@ export async function register(req: Request, res: Response) {
     }
 }
 
-export async function login(req: Request, res: Response) {
+const login = async (req: Request, res: Response) => {
     try {
-        const { error } = loginValidation(req.body);
+        const { error } = ValidationHelper.loginValidation(req.body);
 
         if (error) {
             return res.status(400).send(GeneralHelper.ResponseData(400, "Bad Request", error.details[0].message, null));
         }
 
         const user = req.body;
-        const [data] = await db.users.getByEmail(user);
+        const [data] = await Users.getByEmail(user);
 
         if (typeof data.password !== 'string') {
             return res.status(401).send(GeneralHelper.ResponseData(401, "Unauthorized", null, null));
@@ -69,7 +69,7 @@ export async function login(req: Request, res: Response) {
     }
 }
 
-export async function uploadFile(req: Request, res: Response) {
+const uploadFile = async (req: Request, res: Response) => {
     try {
         if (!req.file) {
             return res.status(400).send(GeneralHelper.ResponseData(400, "Bad Request", 'Please upload an image', null));
@@ -83,4 +83,10 @@ export async function uploadFile(req: Request, res: Response) {
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
+}
+
+export default {
+    register,
+    login,
+    uploadFile
 }

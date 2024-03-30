@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import GeneralHelper from "../helpers/GeneralHelper";
+import GeneralHelper from "../helpers/generalHelper";
 
 const Auth = async (req: Request, res: Response, next: NextFunction) => {
     try {

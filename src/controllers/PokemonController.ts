@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
-import db from "../db";
-import { getPokeAPI } from "../services/pokeapiService";
-import GeneralHelper from "../helpers/GeneralHelper";
 
-export async function getPokemonsFromPokeAPI(req: Request, res: Response) {
+import Pokemons from "../db/pokemons";
+import PokeAPI from "../services/pokeapiService";
+import GeneralHelper from "../helpers/generalHelper";
+
+const getPokemonsFromPokeAPI = async (req: Request, res: Response) => {
     try {
-        const pokemons = await getPokeAPI();
+        const pokemons = await PokeAPI.getPokeAPI();
 
         return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, pokemons));
     } catch (error) {
@@ -13,12 +14,17 @@ export async function getPokemonsFromPokeAPI(req: Request, res: Response) {
     }
 }
 
-export async function getPokemonsByUserId(req: Request, res: Response) {
+const getPokemonsByUserId = async (req: Request, res: Response) => {
     try {
-        const pokemon = await db.pokemons.getByUserId(res.locals.userId);
+        const pokemon = await Pokemons.getByUserId(res.locals.userId);
 
         return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, pokemon));
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
+}
+
+export default {
+    getPokemonsFromPokeAPI,
+    getPokemonsByUserId
 }

@@ -1,5 +1,5 @@
 import type { RowDataPacket } from 'mysql2';
-import { SelectQuery, ModifyQuery } from './queryUtils';
+import QueryUtils from './queryUtils';
 
 export interface IUserRow extends RowDataPacket {
     id: number
@@ -8,18 +8,25 @@ export interface IUserRow extends RowDataPacket {
     password: string
 }
 
-export function getAll() {
-    return SelectQuery<IUserRow>('SELECT * FROM users;');
+const getAll = async () => {
+    return QueryUtils.SelectQuery<IUserRow>('SELECT * FROM users;');
 }
 
-export async function getOne(id: number) {
-    return SelectQuery<IUserRow>('SELECT * FROM users WHERE id = ?', [id]);
+const getOne = async (id: number) => {
+    return QueryUtils.SelectQuery<IUserRow>('SELECT * FROM users WHERE id = ?', [id]);
 }
 
-export async function register(user: IUserRow) {
-    return ModifyQuery<IUserRow>('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [user.username, user.email, user.password]);
+const register = async (user: IUserRow) => {
+    return QueryUtils.ModifyQuery<IUserRow>('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [user.username, user.email, user.password]);
 }
 
-export async function getByEmail(user: IUserRow) {
-    return SelectQuery<IUserRow>('SELECT * FROM users WHERE email = ?', [user.email]);
+const getByEmail = async (user: IUserRow) => {
+    return QueryUtils.SelectQuery<IUserRow>('SELECT * FROM users WHERE email = ?', [user.email]);
+}
+
+export default {
+    getAll,
+    getOne,
+    register,
+    getByEmail
 }

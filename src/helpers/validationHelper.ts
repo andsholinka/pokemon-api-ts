@@ -6,7 +6,7 @@ interface Register {
     password: string;
 }
 
-export const registerValidation = (data: Register) => {
+const registerValidation = (data: Register) => {
     const schema = Joi.object({
         username: Joi.string().required(),
         email: Joi.string().email().required(),
@@ -15,7 +15,8 @@ export const registerValidation = (data: Register) => {
 
     return schema.validate(data);
 }
-export const loginValidation = (data: { email: string, password: string }) => {
+
+const loginValidation = (data: { email: string, password: string }) => {
     const schema = Joi.object({
         email: Joi.string().email().required(),
         password: Joi.string().required(),
@@ -23,3 +24,5 @@ export const loginValidation = (data: { email: string, password: string }) => {
 
     return schema.validate(data);
 }
+
+export default { registerValidation, loginValidation }
