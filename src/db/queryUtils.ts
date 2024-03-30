@@ -6,7 +6,7 @@ export async function SelectQuery<T>(queryString: string, values?: any[]): Promi
     return result as T[];
 }
 
-export async function ModifyQuery<T>(queryString: string): Promise<ResultSetHeader> {
-    const [result] = await pool.query(queryString);
+export async function ModifyQuery<T>(queryString: string, values?: any[]): Promise<ResultSetHeader> {
+    const [result] = await pool.query(queryString, values);
     return result as ResultSetHeader;
 }
