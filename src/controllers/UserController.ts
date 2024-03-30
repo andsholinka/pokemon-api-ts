@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
+import path from 'path'
+import fs from "fs";
+
 import db from "../db";
+import cloudinary from "../helpers/cloudinary";
 import GeneralHelper from "../helpers/GeneralHelper";
 import { registerValidation, loginValidation } from "../helpers/validationHelper";
 
@@ -60,7 +64,22 @@ export async function login(req: Request, res: Response) {
         const token = GeneralHelper.GenerateToken(dataUser);
 
         return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, { token }));
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
 
+export async function uploadFile(req: Request, res: Response) {
+    try {
+        if (!req.file) {
+            return res.status(400).send(GeneralHelper.ResponseData(400, "Bad Request", 'Please upload an image', null));
+        }
+
+        const result = await cloudinary.uploader.upload(req.file.path);
+
+        fs.unlinkSync(path.join(__dirname, '../../src/uploads/') + req.file.filename)
+
+        return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, { ulr: result.url }));
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
