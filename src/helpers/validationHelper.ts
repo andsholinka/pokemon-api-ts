@@ -25,4 +25,17 @@ const loginValidation = (data: { email: string, password: string }) => {
     return schema.validate(data);
 }
 
-export default { registerValidation, loginValidation }
+const addPokemon = (data: { pokemonName: string, nickname: string }) => {
+    const schema = Joi.object({
+        pokemonName: Joi.string().required(),
+        nickname: Joi.string().required(),
+    });
+
+    return schema.validate(data);
+}
+
+export default {
+    registerValidation,
+    loginValidation,
+    addPokemon
+}

@@ -1,12 +1,15 @@
 import { Router } from "express";
 import UserController from "../controllers/UserController";
+import PokemonController from "../controllers/PokemonController";
 import upload from "../helpers/fileUpload";
+import Auth from '../middleware/auth';
 
 const router = Router();
 
 // GET /api/users
 router.post('/register', UserController.register);
-router.get('/login', UserController.login);
+router.post('/login', UserController.login);
 router.post('/file-upload', upload.single('file'), UserController.uploadFile);
+router.get('/pokemons', Auth, PokemonController.getMyPokemonList);
 
 export default router;
