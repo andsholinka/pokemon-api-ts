@@ -19,7 +19,7 @@ const Auth = async (req: Request, res: Response, next: NextFunction) => {
         next();
 
     } catch (error: any) {
-        return res.status(500).send(GeneralHelper.ResponseData(500, "Internal Server Error", error, null));
+        return res.status(500).send({ status: 500, message: "Internal Server Error" });
     }
 }
 

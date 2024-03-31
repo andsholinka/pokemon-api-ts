@@ -11,5 +11,6 @@ router.post('/register', UserController.register);
 router.post('/login', UserController.login);
 router.post('/file-upload', upload.single('file'), UserController.uploadFile);
 router.get('/pokemons', Auth, PokemonController.getMyPokemonList);
+router.get('/detail', Auth, UserController.getDataUser);
 
 export default router;
