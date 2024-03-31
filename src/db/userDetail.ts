@@ -6,6 +6,8 @@ export interface IUserDetailRow extends RowDataPacket {
     id_user: number
     address: string
     gender: string
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const register = async (user: IUserDetailRow): Promise<IUserDetailRow> => {

@@ -96,7 +96,7 @@ const uploadFile = async (req: Request, res: Response) => {
     }
 }
 
-const getDataUser = async (req: Request, res: Response): Promise<void> => {
+const getDataUser = async (req: Request, res: Response) => {
     try {
         const data = await UserDetail.getDataUser(res.locals.userId);
 
@@ -106,9 +106,52 @@ const getDataUser = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+const getAllUser = async (req: Request, res: Response) => {
+    try {
+        const data = await Users.getAll();
+
+        res.status(200).send({ status: 200, message: "Success", data });
+    } catch (error) {
+        res.status(500).send({ status: 500, message: "Internal Server Error" });
+    }
+}
+
+const deleteUser = async (req: Request, res: Response) => {
+    try {
+        const id = Number(res.locals.userId)
+
+        await Users.deleteUser(id);
+
+        res.status(200).send({ status: 200, message: "Success", data: null });
+    } catch (error) {
+        res.status(500).send({ status: 500, message: "Internal Server Error" });
+    }
+}
+
+const updatePassword = async (req: Request, res: Response) => {
+    try {
+        const { error } = ValidationHelper.updatePassword(req.body);
+
+        if (error) {
+            return res.status(400).send(GeneralHelper.ResponseData(400, "Bad Request", error.details[0].message, null));
+        }
+
+        const data = await GeneralHelper.PasswordHash(req.body.password);
+
+        await Users.updatePassword(data, res.locals.userId);
+
+        res.status(200).send({ status: 200, message: "Success" });
+    } catch (error) {
+        res.status(500).send({ status: 500, message: "Internal Server Error" });
+    }
+}
+
 export default {
     register,
     login,
     uploadFile,
-    getDataUser
+    getDataUser,
+    getAllUser,
+    deleteUser,
+    updatePassword
 }

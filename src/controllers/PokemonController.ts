@@ -49,7 +49,7 @@ const addPokemon = async (req: Request, res: Response) => {
     }
 }
 
-const getMyPokemonList = async (req: Request, res: Response): Promise<void> => {
+const getMyPokemonList = async (req: Request, res: Response) => {
     try {
         const pokemons = await Pokemons.getMyPokemonList(res.locals.userId);
         pokemons.forEach(pokemon => {
