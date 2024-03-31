@@ -3,9 +3,12 @@ import path from 'path'
 import fs from "fs";
 
 import Users from "../db/users";
+import UserDetail from "../db/userDetail";
+import QueryUtils from "../db/queryUtils";
 import cloudinary from "../helpers/cloudinary";
 import GeneralHelper from "../helpers/generalHelper";
 import ValidationHelper from "../helpers/validationHelper";
+
 
 const register = async (req: Request, res: Response) => {
     try {
@@ -15,22 +18,27 @@ const register = async (req: Request, res: Response) => {
             return res.status(400).send(GeneralHelper.ResponseData(400, "Bad Request", error.details[0].message, null));
         }
 
-        const user = req.body;
-
-        const [duplicateUser] = await Users.getByEmail(user);
+        const [duplicateUser] = await Users.getByEmail(req.body);
 
         if (duplicateUser) {
-            return res.status(400).send(GeneralHelper.ResponseData(400, "Bad Request", 'Email already exists', null));
+            return res.status(409).send(GeneralHelper.ResponseData(409, "Conflict", 'Email already exists', null));
         }
 
-        const hashed = await GeneralHelper.PasswordHash(user.password);
-        user.password = hashed;
+        await QueryUtils.startTransaction();
 
-        await Users.register(user);
+        req.body.password = await GeneralHelper.PasswordHash(req.body.password);
 
-        return res.status(201).send(GeneralHelper.ResponseData(201, "OK", null, user));
+        const userResult = await Users.register(req.body);
+        req.body.id_user = userResult.id
+
+        const result = await UserDetail.register(req.body);
+
+        await QueryUtils.commitTransaction();
+
+        return res.status(201).send(GeneralHelper.ResponseData(201, "OK", null, result));
     } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
+        await QueryUtils.rollbackTransaction();
+        res.status(500).send({ status: 500, message: "Internal Server Error" });
     }
 }
 
@@ -42,17 +50,20 @@ const login = async (req: Request, res: Response) => {
             return res.status(400).send(GeneralHelper.ResponseData(400, "Bad Request", error.details[0].message, null));
         }
 
-        const user = req.body;
-        const [data] = await Users.getByEmail(user);
+        const [data] = await Users.getByEmail(req.body);
+
+        if (!data) {
+            return res.status(404).send(GeneralHelper.ResponseData(404, "Email not found", null, null));
+        }
 
         if (typeof data.password !== 'string') {
             return res.status(401).send(GeneralHelper.ResponseData(401, "Unauthorized", null, null));
         }
 
-        const match = await GeneralHelper.PasswordCompare(user.password, data.password);
+        const match = await GeneralHelper.PasswordCompare(req.body.password, data.password);
 
         if (!match) {
-            return res.status(401).send(GeneralHelper.ResponseData(401, "Unauthorized", null, null));
+            return res.status(401).send(GeneralHelper.ResponseData(401, "Unauthorized: Invalid credentials", null, null));
         }
 
         const dataUser = {
@@ -65,7 +76,7 @@ const login = async (req: Request, res: Response) => {
 
         return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, { token }));
     } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).send({ status: 500, message: "Internal Server Error" });
     }
 }
 
@@ -81,12 +92,23 @@ const uploadFile = async (req: Request, res: Response) => {
 
         return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, { ulr: result.url }));
     } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).send({ status: 500, message: "Internal Server Error" });
+    }
+}
+
+const getDataUser = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const data = await UserDetail.getDataUser(res.locals.userId);
+
+        res.status(200).send({ status: 200, message: "Success", data });
+    } catch (error) {
+        res.status(500).send({ status: 500, message: "Internal Server Error" });
     }
 }
 
 export default {
     register,
     login,
-    uploadFile
+    uploadFile,
+    getDataUser
 }

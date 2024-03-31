@@ -16,8 +16,12 @@ const getOne = async (id: number) => {
     return QueryUtils.SelectQuery<IUserRow>('SELECT * FROM users WHERE id = ?', [id]);
 }
 
-const register = async (user: IUserRow) => {
-    return QueryUtils.ModifyQuery<IUserRow>('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [user.username, user.email, user.password]);
+const register = async (user: IUserRow): Promise<IUserRow> => {
+    const result = await QueryUtils.ModifyQuery<IUserRow>('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [user.username, user.email, user.password]);
+    return {
+        ...user,
+        id: result.insertId
+    };
 }
 
 const getByEmail = async (user: IUserRow) => {
