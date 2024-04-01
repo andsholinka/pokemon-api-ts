@@ -1,7 +1,7 @@
 # Skill Test Backend
 
 ## Built with
-* [Express](https://expressjs.com/) - The web framework used.
+* [ExpressJs](https://expressjs.com/) - The web framework used.
 * [TypeScript](https://www.typescriptlang.org/) - Language for application-scale JavaScript.
 * [MySQL](https://mysql.com/) - Relational database management system (RDBMS).
 * [Redis](https://redis.io/) - The in-memory data structure store.
@@ -10,7 +10,7 @@
 
 ## Installation
 
-1. Make sure you have **Node.js** (version 18 or newer), **NPM** and MySql database installed on your system.
+1. Make sure you have **Node.js** (version 18 or newer), **NPM** and **MySql** database installed on your system.
 2. Clone this repository to your local system:
    ```sh
    git clone https://github.com/andsholinka/pokemon-api-ts
