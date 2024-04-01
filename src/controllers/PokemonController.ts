@@ -1,20 +1,19 @@
 import { Request, Response } from "express";
-import { createClient } from "redis";
+import Redis from 'ioredis';
 
 import Pokemons from "../db/pokemons";
 import PokeAPI from "../services/pokeapiService";
 import GeneralHelper from "../helpers/generalHelper";
 import ValidationHelper from "../helpers/validationHelper";
 
-const client = createClient();
-client.connect();
-client.on("connect", () => {
+const redis = new Redis();
+redis.on("ready", () => {
     console.log("Connected to Redis");
 })
 
 const getPokemonsFromPokeAPI = async (req: Request, res: Response) => {
     try {
-        const result = await client.get("pokemons")
+        const result = await redis.get("pokemons")
 
         if (result !== null) {
             console.log("data retrived from redis");
@@ -23,7 +22,7 @@ const getPokemonsFromPokeAPI = async (req: Request, res: Response) => {
 
         const pokemons = await PokeAPI.getPokeAPI();
 
-        client.setEx("pokemons", 600, JSON.stringify(pokemons));
+        redis.set("pokemons", JSON.stringify(pokemons), 'EX', 120);
 
         console.log("data not retrived from redis");
         return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, pokemons));
