@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 
 import apiRouter from './routers';
@@ -15,6 +16,8 @@ app.use(express.urlencoded({
     parameterLimit: 100000,
     limit: '50mb'
 }));
+
+app.use(cookieParser());
 
 const Port = process.env.APP_PORT || 8080;
 

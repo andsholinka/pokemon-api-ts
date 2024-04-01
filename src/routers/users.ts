@@ -12,8 +12,10 @@ router.post('/login', UserController.login);
 router.post('/file-upload', upload.single('file'), UserController.uploadFile);
 router.get('/pokemons', Auth, PokemonController.getMyPokemonList);
 router.get('/detail', Auth, UserController.getDataUser);
+router.put('/detail', Auth, UserController.updateDetailUser);
 router.get('/all', Auth, UserController.getAllUser);
+router.put('/', Auth, UserController.updatePassword);
 router.delete('/', Auth, UserController.deleteUser);
-router.put('/:id', Auth, UserController.updatePassword);
+router.get('/refresh-token', UserController.RefreshToken);
 
 export default router;

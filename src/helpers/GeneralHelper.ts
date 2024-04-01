@@ -44,7 +44,7 @@ const PasswordCompare = async (password: string, passwordHash: string): Promise<
 }
 
 const GenerateToken = (data: any): string => {
-    const token = jwt.sign(data, process.env.JWT_TOKEN as string, { expiresIn: '1d' });
+    const token = jwt.sign(data, process.env.JWT_TOKEN as string, { expiresIn: '1m' });
     return token;
 }
 
@@ -68,4 +68,37 @@ const ExtractToken = (token: string): userData | null => {
     return null;
 }
 
-export default { ResponseData, PasswordHash, PasswordCompare, GenerateToken, ExtractToken }
+const GenerateRefreshToken = (data: any): string => {
+    const token = jwt.sign(data, process.env.JWT_REFRESH_TOKEN as string, { expiresIn: '1d' });
+    return token;
+}
+
+const ExtractRefreshToken = (token: string): userData | null => {
+    const secretKey: string = process.env.JWT_REFRESH_TOKEN as string;
+
+    let responseData: any;
+
+    const res = jwt.verify(token, secretKey, (err: any, decoded: any) => {
+        if (err) {
+            responseData = null
+        } else {
+            responseData = decoded
+        }
+    })
+
+    if (responseData) {
+        const result: userData = <userData>(responseData);
+        return result;
+    }
+    return null;
+}
+
+export default {
+    ResponseData,
+    PasswordHash,
+    PasswordCompare,
+    GenerateToken,
+    ExtractToken,
+    GenerateRefreshToken,
+    ExtractRefreshToken
+}
