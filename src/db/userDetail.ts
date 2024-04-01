@@ -22,8 +22,12 @@ const getDataUser = async (userId: number) => {
     return QueryUtils.SelectQuery<IUserDetailRow>('SELECT users.*, user_detail.* FROM user_detail JOIN users ON user_detail.id_user = users.id WHERE users.id = ?', [userId]);
 }
 
+const updateDetailUser = async (data: IUserDetailRow, id: number) => {
+    return QueryUtils.ModifyQuery<IUserDetailRow>('UPDATE user_detail SET address = ?, gender = ? WHERE id_user = ?', [data.address, data.gender, id]);
+}
 
 export default {
     register,
-    getDataUser
+    getDataUser,
+    updateDetailUser
 }

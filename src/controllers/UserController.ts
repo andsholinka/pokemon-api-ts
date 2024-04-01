@@ -50,33 +50,62 @@ const login = async (req: Request, res: Response) => {
             return res.status(400).send(GeneralHelper.ResponseData(400, "Bad Request", error.details[0].message, null));
         }
 
-        const [data] = await Users.getByEmail(req.body);
+        const [user] = await Users.getByEmail(req.body);
 
-        if (!data) {
+        if (!user) {
             return res.status(404).send(GeneralHelper.ResponseData(404, "Email not found", null, null));
         }
 
-        if (typeof data.password !== 'string') {
+        if (typeof user.password !== 'string') {
             return res.status(401).send(GeneralHelper.ResponseData(401, "Unauthorized", null, null));
         }
 
-        const match = await GeneralHelper.PasswordCompare(req.body.password, data.password);
+        const match = await GeneralHelper.PasswordCompare(req.body.password, user.password);
 
         if (!match) {
             return res.status(401).send(GeneralHelper.ResponseData(401, "Unauthorized: Invalid credentials", null, null));
         }
 
         const dataUser = {
-            id: data.id,
-            username: data.username,
-            email: data.email,
+            id: user.id,
+            username: user.username,
+            email: user.email,
         }
 
         const token = GeneralHelper.GenerateToken(dataUser);
+        const refreshToken = GeneralHelper.GenerateRefreshToken(dataUser);
+
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
 
         return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, { token }));
     } catch (error) {
         res.status(500).send({ status: 500, message: "Internal Server Error" });
+    }
+}
+
+const RefreshToken = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const refreshToken = req.cookies?.refreshToken;
+
+        if (!refreshToken) {
+            return res.status(401).send(GeneralHelper.ResponseData(401, "unauthorized", null, null));
+        }
+
+        const decodedUser = GeneralHelper.ExtractRefreshToken(refreshToken);
+
+        if (!decodedUser) {
+            return res.status(401).send(GeneralHelper.ResponseData(401, "unauthorized", null, null));
+        }
+
+        const token = GeneralHelper.GenerateToken({
+            id: decodedUser.id,
+            username: decodedUser.username,
+            email: decodedUser.email,
+        });
+
+        return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, token));
+    } catch (error: any) {
+        return res.status(500).send(GeneralHelper.ResponseData(500, "", error, null));
     }
 }
 
@@ -140,7 +169,17 @@ const updatePassword = async (req: Request, res: Response) => {
 
         await Users.updatePassword(data, res.locals.userId);
 
-        res.status(200).send({ status: 200, message: "Success" });
+        res.status(200).send({ status: 200, message: "Password successfully updated." });
+    } catch (error) {
+        res.status(500).send({ status: 500, message: "Internal Server Error" });
+    }
+}
+
+const updateDetailUser = async (req: Request, res: Response) => {
+    try {
+        await UserDetail.updateDetailUser(req.body, res.locals.userId);
+
+        res.status(200).send({ status: 200, message: "Data successfully updated." });
     } catch (error) {
         res.status(500).send({ status: 500, message: "Internal Server Error" });
     }
@@ -153,5 +192,7 @@ export default {
     getDataUser,
     getAllUser,
     deleteUser,
-    updatePassword
+    updatePassword,
+    updateDetailUser,
+    RefreshToken
 }
