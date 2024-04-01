@@ -1,4 +1,4 @@
-# My Pokemon
+# Skill Test Backend
 
 ## Built with
 * [Express](https://expressjs.com/) 
@@ -15,3 +15,6 @@
 
 ## Getting Started
 1. Run the command  `npm start`
+
+## DockerHub
+https://hub.docker.com/r/respecker/express-typescript
