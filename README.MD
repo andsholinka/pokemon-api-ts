@@ -1,16 +1,16 @@
 # Skill Test Backend
 
 ## Built with
-* [Express](https://expressjs.com/) 
-* [TypeScript](https://www.typescriptlang.org/) 
-* [MySQL](https://mysql.com/) 
-* [Redis](https://redis.io/) 
-* [PokeAPI](https://pokeapi.co/) 
-* [Cloudinary](https://cloudinary.com/) 
+* [Express](https://expressjs.com/) - The web framework used.
+* [TypeScript](https://www.typescriptlang.org/) - Language for application-scale JavaScript.
+* [MySQL](https://mysql.com/) - Relational database management system (RDBMS).
+* [Redis](https://redis.io/) - The in-memory data structure store.
+* [PokeAPI](https://pokeapi.co/) - An open RESTful API for Pokémon data.
+* [Cloudinary](https://cloudinary.com/) - Cloudinary is a SaaS technology, provides a cloud-based image and video management services.
 
 ## Installation
 
-1. Make sure you have **Node.js** (version 18 or newer), **npm** (Node Package Manager) and MySql database installed on your system.
+1. Make sure you have **Node.js** (version 18 or newer), **NPM** and MySql database installed on your system.
 2. Clone this repository to your local system:
    ```sh
    git clone https://github.com/andsholinka/pokemon-api-ts
