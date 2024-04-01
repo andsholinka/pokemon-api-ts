@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 import Redis from 'ioredis';
+import dotenv from 'dotenv';
+dotenv.config();
 
 import Pokemons from "../db/pokemons";
 import PokeAPI from "../services/pokeapiService";
 import GeneralHelper from "../helpers/generalHelper";
 import ValidationHelper from "../helpers/validationHelper";
 
-const redis = new Redis();
+const redis = new Redis({
+    host: process.env.REDIS_HOST || 'redis',
+    port: 6379
+});
 redis.on("ready", () => {
     console.log("Connected to Redis");
 })
@@ -16,7 +21,6 @@ const getPokemonsFromPokeAPI = async (req: Request, res: Response) => {
         const result = await redis.get("pokemons")
 
         if (result !== null) {
-            console.log("data retrived from redis");
             return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, JSON.parse(result)));
         }
 
@@ -24,7 +28,6 @@ const getPokemonsFromPokeAPI = async (req: Request, res: Response) => {
 
         redis.set("pokemons", JSON.stringify(pokemons), 'EX', 120);
 
-        console.log("data not retrived from redis");
         return res.status(200).send(GeneralHelper.ResponseData(200, "OK", null, pokemons));
     } catch (error) {
         res.status(500).send({ status: 500, message: "Internal Server Error", error });
